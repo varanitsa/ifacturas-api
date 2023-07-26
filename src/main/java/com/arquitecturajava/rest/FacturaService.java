@@ -4,10 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.Id;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class FacturaService {
@@ -38,8 +36,6 @@ public class FacturaService {
     }
 
 
-
-
     public Factura agregarFactura(Factura factura) {
         int numeroFactura = factura.getNumero();
         List<Factura> facturasExistente = facturaRepository.findByNumero(numeroFactura);
@@ -51,11 +47,37 @@ public class FacturaService {
         return facturaRepository.save(factura);
     }
 
-
-
     // Método para guardar varias facturas
+
+    /*
     public List<Factura> agregarFacturas(List<Factura> facturas) {
         return facturaRepository.saveAll(facturas);
+    }
+    */
+
+    public List<Factura> agregarFacturas(List<Factura> facturas) throws FacturasExistenException {
+        List<Factura> nuevasFacturas = new ArrayList<>();
+        List<Integer> numerosFacturasExistentes = new ArrayList<>();
+
+        for (Factura factura : facturas) {
+            int numeroFactura = factura.getNumero();
+            List<Factura> facturasExistentesPorNumero = facturaRepository.findByNumero(numeroFactura);
+
+            if (facturasExistentesPorNumero.isEmpty()) {
+                // La factura no existe, podemos agregarla
+                facturaRepository.save(factura);
+                nuevasFacturas.add(factura);
+            } else {
+                // La factura ya existe, agregamos el número a la lista de facturas existentes
+                numerosFacturasExistentes.add(numeroFactura);
+            }
+        }
+
+        if (!numerosFacturasExistentes.isEmpty()) {
+            throw new FacturasExistenException("Ya existen facturas con los siguientes números: " + numerosFacturasExistentes);
+        }
+
+        return nuevasFacturas;
     }
 
 

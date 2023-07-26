@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 @RestController
@@ -45,27 +45,40 @@ public class FacturaController {
         }
     }
 
+    /* @PostMapping("/bulk")
+     public List<Factura> agregarFacturas(@RequestBody List<Factura> facturas) {
+         return facturaService.agregarFacturas(facturas);
+     }
+ */
+
+
     @PostMapping("/bulk")
-    public List<Factura> agregarFacturas(@RequestBody List<Factura> facturas) {
-        return facturaService.agregarFacturas(facturas);
+    public ResponseEntity<?> agregarFacturas(@RequestBody List<Factura> facturas) {
+        try {
+            List<Factura> nuevasFacturas = facturaService.agregarFacturas(facturas);
+            return new ResponseEntity<>(nuevasFacturas, HttpStatus.CREATED);
+        } catch (FacturasExistenException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
 
     @PutMapping("/{id}")
-    public Factura actualizarFactura(@PathVariable Long id, @RequestBody Factura nuevaFactura) {
-        return facturaService.actualizarFactura(id, nuevaFactura);
+        public Factura actualizarFactura (@PathVariable Long id, @RequestBody Factura nuevaFactura){
+            return facturaService.actualizarFactura(id, nuevaFactura);
+        }
+
+
+        @PutMapping("numero/{numero}")
+        public Map<String, Object> actualizarFactura ( @PathVariable int numero, @RequestBody Factura nuevaFactura){
+            return facturaService.actualizarFacturaByNumero(numero, nuevaFactura);
+        }
+
+        @DeleteMapping("/{id}")
+        public String eliminarFactura (@PathVariable Long id){
+            return facturaService.eliminarFacturaPorId(id);
+        }
+
+
     }
 
-
-    @PutMapping("numero/{numero}")
-    public Map<String, Object> actualizarFactura(@PathVariable int numero, @RequestBody Factura nuevaFactura) {
-        return facturaService.actualizarFacturaByNumero(numero, nuevaFactura);
-    }
-
-    @DeleteMapping("/{id}")
-    public String eliminarFactura(@PathVariable Long id) {
-        return facturaService.eliminarFacturaPorId(id);
-    }
-
-
-}
