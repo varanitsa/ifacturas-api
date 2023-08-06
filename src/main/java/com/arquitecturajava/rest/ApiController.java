@@ -1,0 +1,93 @@
+package com.arquitecturajava.rest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/facturas")
+public class ApiController {
+    private final FacturaService facturaService;
+
+    @Autowired
+    public ApiController(FacturaService facturaService) {
+        this.facturaService = facturaService;
+    }
+
+    @GetMapping
+    public List<Factura> obtenerTodasLasFacturas() {
+        return facturaService.buscarTodas();
+    }
+    
+    
+    @GetMapping("numero/{numero}")
+    public List<Factura> buscarFacturaPorNumero(@PathVariable int numero) {
+        return facturaService.buscarFacturaPorNumero(numero);
+        
+        }
+    
+    @GetMapping("{id}")
+    public Factura buscarFacturaPorID(@PathVariable Long id) {
+        return facturaService.buscarFacturaPorID(id);
+    }
+
+    @GetMapping("/ids")
+    public List<Long> obtenerTodosLosIdsDeFacturas() {
+        return facturaService.obtenerTodosLosIdsDeFacturas();
+    }
+
+    @PostMapping
+    public ResponseEntity<?> crearFactura(@RequestBody Factura factura) {
+        try {
+            Factura nuevaFactura = facturaService.agregarFactura(factura);
+            return new ResponseEntity<>(nuevaFactura, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /* @PostMapping("/bulk")
+     public List<Factura> agregarFacturas(@RequestBody List<Factura> facturas) {
+         return facturaService.agregarFacturas(facturas);
+     }
+ */
+
+
+    @PostMapping("/bulk")
+    public ResponseEntity<?> agregarFacturas(@RequestBody List<Factura> facturas) {
+        try {
+            List<Factura> nuevasFacturas = facturaService.agregarFacturas(facturas);
+            return new ResponseEntity<>(nuevasFacturas, HttpStatus.CREATED);
+        } catch (FacturasExistenException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    @PutMapping("/{id}")
+        public Factura actualizarFactura (@PathVariable Long id, @RequestBody Factura nuevaFactura){
+            return facturaService.actualizarFactura(id, nuevaFactura);
+        }
+
+
+    @PutMapping("numero/{numero}")
+        public Map<String, Object> actualizarFactura ( @PathVariable int numero, @RequestBody Factura nuevaFactura){
+            return facturaService.actualizarFacturaByNumero(numero, nuevaFactura);
+        }
+
+    @DeleteMapping("/{id}")
+        public String eliminarFactura (@PathVariable Long id){
+            return facturaService.eliminarFacturaPorId(id);
+        }
+
+
+    }
+

@@ -10,5 +10,6 @@ public interface FacturaRepository2 extends JpaRepository<Factura, Long> {
     List<Long> findAllIds();
 
     List<Factura> findByNumero(int numero);
-    // Puedes agregar métodos personalizados de consulta aquí si es necesario
+    Factura findByid(Long id);
+
 }

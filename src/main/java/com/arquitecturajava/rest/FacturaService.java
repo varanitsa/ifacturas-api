@@ -34,6 +34,21 @@ public class FacturaService {
     public List<Factura> buscarTodas() {
         return facturaRepository.findAll();
     }
+    
+    public Factura buscarFacturaPorID(Long id) {
+    	
+    	Optional<Factura> facturaOptional = facturaRepository.findById(id);
+
+        if (facturaOptional.isEmpty()) {
+            throw new RuntimeException("No se encontró ninguna factura con el id " + id);
+        }
+
+        return facturaOptional.get();
+
+    
+    }
+
+
 
 
     public Factura agregarFactura(Factura factura) {
