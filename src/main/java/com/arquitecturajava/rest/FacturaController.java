@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 @Controller
+@RequestMapping("/listado-facturas")
 public class FacturaController {
     private final FacturaService facturaService;
 
@@ -22,7 +23,7 @@ public class FacturaController {
     }
 
     
-    @GetMapping("vista_facturas")
+    @GetMapping
     public String mostrarListadoFacturas(Model model) {
         List<Factura> facturas = facturaService.buscarTodas();
         model.addAttribute("facturas", facturas);
@@ -31,6 +32,18 @@ public class FacturaController {
     }
     
     
+
+    @GetMapping("/{id}")
+    public String buscarFacturaPorID(@PathVariable Long id, Model model) {
+        Factura factura = facturaService.buscarFacturaPorID(id);
+        model.addAttribute("factura", factura);
+
+        return "factura_id"; 
+    }
+    
+    
+    
+ 
 
 
     }

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Listado de Facturas</title>
+     <title>Detalles de Factura</title>
     <head>
     <title>Listado de Facturas</title>  
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <h1>Listado de Facturas</h1>
+    <h1>Detalles de Factura</h1>
  
     <div class="container">
         <table class="table">
@@ -22,7 +22,7 @@
                 <th>Importe</th>
                 <th>Acciones</th>
             </tr>
-            <#list facturas as factura>
+           
                 <tr>
                     <td>${factura.id}</td>
                     <td>${factura.numero}</td>
@@ -33,7 +33,7 @@
                         <button class="btn btn-danger" onclick="deleteFactura(${factura.id})">Eliminar</button>
                     </td>
                 </tr>
-            </#list>
+            
         </table>
     </div>
 </body>
