@@ -59,7 +59,16 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
+			<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>3.1.0</version>
+					<configuration>
+						<mainClass>com.arquitecturajava.rest.RestApplication</mainClass>
+						<!-- Otros parámetros si es necesario -->
+					</configuration>
+			</plugin>
 		</plugins>
 	</build>
-
 </project>
