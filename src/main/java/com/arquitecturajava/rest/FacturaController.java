@@ -4,11 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
-
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/facturas")
@@ -25,14 +21,35 @@ public class FacturaController {
         return facturaService.buscarTodas();
     }
 
+
+    @GetMapping("/{id}")
+    public Optional<Factura> buscarFacturaById(@PathVariable Long id) {
+        return facturaService.buscarFacturaById(id);
+    }
+
+
     @GetMapping("numero/{numero}")
     public List<Factura> buscarFacturaPorNumero(@PathVariable int numero) {
         return facturaService.buscarFacturaPorNumero(numero);
     }
 
     @GetMapping("/ids")
-    public List<Long> obtenerTodosLosIdsDeFacturas() {
-        return facturaService.obtenerTodosLosIdsDeFacturas();
+
+    public Map<String, List<Map<String, Long>>> obtenerTodosLosIdsDeFacturas() {
+        List<Long> ids = facturaService.obtenerTodosLosIdsDeFacturas();
+
+        // la respuesta json
+        Map<String, List<Map<String, Long>>> response = new HashMap<>();
+        List<Map<String, Long>> facturas = new ArrayList<>();
+
+        for (Long id : ids) {
+            Map<String, Long> factura = new HashMap<>();
+            factura.put("id", id);
+            facturas.add(factura);
+        }
+
+        response.put("facturas", facturas);
+        return response;
     }
 
     @PostMapping
@@ -64,21 +81,21 @@ public class FacturaController {
 
 
     @PutMapping("/{id}")
-        public Factura actualizarFactura (@PathVariable Long id, @RequestBody Factura nuevaFactura){
-            return facturaService.actualizarFactura(id, nuevaFactura);
-        }
-
-
-        @PutMapping("numero/{numero}")
-        public Map<String, Object> actualizarFactura ( @PathVariable int numero, @RequestBody Factura nuevaFactura){
-            return facturaService.actualizarFacturaByNumero(numero, nuevaFactura);
-        }
-
-        @DeleteMapping("/{id}")
-        public String eliminarFactura (@PathVariable Long id){
-            return facturaService.eliminarFacturaPorId(id);
-        }
-
-
+    public Factura actualizarFacturaById(@PathVariable Long id, @RequestBody Factura nuevaFactura) {
+        return facturaService.actualizarFacturaById(id, nuevaFactura);
     }
+
+
+    @PutMapping("numero/{numero}")
+    public Map<String, Object> actualizarFacturaPorNumero(@PathVariable int numero, @RequestBody Factura nuevaFactura) {
+        return facturaService.actualizarFacturaPorNumero(numero, nuevaFactura);
+    }
+
+    @DeleteMapping("/{id}")
+    public String eliminarFactura(@PathVariable Long id) {
+        return facturaService.eliminarFacturaById(id);
+    }
+
+
+}
 

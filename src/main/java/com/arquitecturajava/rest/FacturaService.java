@@ -2,10 +2,8 @@ package com.arquitecturajava.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import jakarta.persistence.Id;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class FacturaService {
@@ -18,13 +16,23 @@ public class FacturaService {
 
 
     public List<Factura> buscarFacturaPorNumero(int numero) {
-        List<Factura> facturas = facturaRepository.findByNumero(numero);
+        List<Factura> factura = facturaRepository.findByNumero(numero);
 
-        if (facturas.isEmpty()) {
+        if (factura.isEmpty()) {
             throw new RuntimeException("No se encontró ninguna factura con el número " + numero);
         }
 
-        return facturas;
+        return factura;
+    }
+
+    public Optional<Factura> buscarFacturaById(Long id) {
+        Optional<Factura> factura = facturaRepository.findById(id);
+
+        if (factura.isEmpty()) {
+            throw new RuntimeException("No se encontró ninguna factura con el id " + id);
+        }
+
+        return factura;
     }
 
 
@@ -81,7 +89,7 @@ public class FacturaService {
     }
 
 
-    public Factura actualizarFactura(Long id, Factura nuevaFactura) {
+    public Factura actualizarFacturaById(Long id, Factura nuevaFactura) {
         Factura facturaExistente = facturaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se encontró ninguna factura con el ID " + id));
 
@@ -96,7 +104,7 @@ public class FacturaService {
 
 
 
-    public Map<String, Object> actualizarFacturaByNumero(int numero, Factura nuevaFactura) {
+    public Map<String, Object> actualizarFacturaPorNumero(int numero, Factura nuevaFactura) {
         List<Factura> facturasExistente = facturaRepository.findByNumero(numero);
 
         if (facturasExistente.isEmpty()) {
@@ -126,7 +134,7 @@ public class FacturaService {
 
 
 
-    public String eliminarFacturaPorId(Long id) {
+    public String eliminarFacturaById(Long id) {
         Factura factura = facturaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se encontró ninguna factura con el ID " + id));
 
