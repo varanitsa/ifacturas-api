@@ -52,7 +52,11 @@ public class FacturaService {
             throw new RuntimeException("Ya existe una factura con el número " + numeroFactura);
         }
 
-        return facturaRepository.save(factura);
+        Factura nuevaFactura = facturaRepository.save(factura);
+
+        System.out.println("ID de la nueva factura: " + nuevaFactura.getId());
+
+        return nuevaFactura;
     }
 
     // Método para guardar varias facturas
