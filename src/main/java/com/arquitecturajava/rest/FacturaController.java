@@ -1,10 +1,15 @@
 package com.arquitecturajava.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/facturas")
@@ -56,9 +61,17 @@ public class FacturaController {
     public ResponseEntity<?> crearFactura(@RequestBody Factura factura) {
         try {
             Factura nuevaFactura = facturaService.agregarFactura(factura);
-            return new ResponseEntity<>(nuevaFactura, HttpStatus.CREATED);
+
+            // Creamos la URL del recurso creado
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path("/{id}")
+                    .buildAndExpand(nuevaFactura.getId())
+                    .toUri();
+
+            return ResponseEntity.created(location).body(nuevaFactura);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -68,17 +81,30 @@ public class FacturaController {
      }
  */
 
-
     @PostMapping("/bulk")
     public ResponseEntity<?> agregarFacturas(@RequestBody List<Factura> facturas) {
         try {
             List<Factura> nuevasFacturas = facturaService.agregarFacturas(facturas);
+
+            List<URI> facturaUris = nuevasFacturas.stream()
+                    .map(factura -> ServletUriComponentsBuilder
+                            .fromCurrentContextPath()
+                            .path("/facturas/bulk/{id}")
+                            .buildAndExpand(factura.getId())
+                            .toUri())
+                    .collect(Collectors.toList());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.addAll(HttpHeaders.LOCATION, facturaUris.stream()
+                    .map(URI::toString)
+                    .collect(Collectors.toList()));
+
+
             return new ResponseEntity<>(nuevasFacturas, HttpStatus.CREATED);
         } catch (FacturasExistenException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
 
     @PutMapping("/{id}")
     public Factura actualizarFacturaById(@PathVariable Long id, @RequestBody Factura nuevaFactura) {
