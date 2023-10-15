@@ -1,5 +1,8 @@
 package com.arquitecturajava.rest;
 
+import com.arquitecturajava.rest.controller.FacturaController;
+import com.arquitecturajava.rest.entity.Factura;
+import com.arquitecturajava.rest.service.FacturaService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hamcrest.Matchers;
@@ -11,13 +14,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
+
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
+
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -33,7 +35,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -152,7 +154,7 @@ public class FacturaControllerTests {
 
     @Test
     public void testCrearFacturas() throws Exception {
-    List<Factura> facturas = new ArrayList<>();
+        List<Factura> facturas = new ArrayList<>();
         facturas.add(new Factura(1L, 1, "Factura 1", 100));
         facturas.add(new Factura(2L, 2, "Factura 2", 200));
         facturas.add(new Factura(3L, 3, "Factura 3", 300));
@@ -170,28 +172,28 @@ public class FacturaControllerTests {
             return facturaJson;
         }).collect(Collectors.toList());
 
-            // Convertimos la lista de objetos JSON a una cadena JSON
-            String facturaJsonString = new ObjectMapper().writeValueAsString(facturaJsonList);
+        // Convertimos la lista de objetos JSON a una cadena JSON
+        String facturaJsonString = new ObjectMapper().writeValueAsString(facturaJsonList);
 
-            mockMvc.perform(MockMvcRequestBuilders
-                            .post("/facturas/bulk")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(facturaJsonString)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isCreated())
-                    .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(3)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(1))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].numero").value(1))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].concepto").value("Factura 1"))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].importe").value(100))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[1].id").value(2))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[1].numero").value(2))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[1].concepto").value("Factura 2"))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[1].importe").value(200))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[2].id").value(3))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[2].numero").value(3))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[2].concepto").value("Factura 3"))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[2].importe").value(300));
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/facturas/bulk")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(facturaJsonString)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].numero").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].concepto").value("Factura 1"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].importe").value(100))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id").value(2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].numero").value(2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].concepto").value("Factura 2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].importe").value(200))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].id").value(3))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].numero").value(3))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].concepto").value("Factura 3"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].importe").value(300));
 
 
 
@@ -205,4 +207,46 @@ public class FacturaControllerTests {
                         }
                     });*/
     }
+
+
+    @Test
+    public void testActualizarFacturaById() throws Exception {
+
+        Long facturaId = 1L;
+        Factura nuevaFactura = new Factura(facturaId, 1, "Nueva Factura", 500.0);
+
+        mockMvc.perform(put("/facturas/" + facturaId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(nuevaFactura)))
+                .andExpect(status().isOk());
+
+        verify(facturaService).actualizarFacturaById(eq(facturaId), any());
+    }
+
+
+    @Test
+    public void testActualizarFacturaPorNumero() throws Exception {
+        // Datos de ejemplo
+        int numeroFactura = 1;
+        Factura nuevaFactura = new Factura(1L, numeroFactura, "Nueva Factura", 500.0);
+
+        mockMvc.perform(put("/facturas/numero/" + numeroFactura)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(nuevaFactura)))
+                .andExpect(status().isOk());
+
+        verify(facturaService).actualizarFacturaPorNumero(eq(numeroFactura), any());
+    }
+
+    @Test
+    public void testEliminarFactura() throws Exception {
+
+        Long facturaId = 1L;
+
+        mockMvc.perform(delete("/facturas/" + facturaId))
+                .andExpect(status().isOk());
+
+        verify(facturaService).eliminarFacturaById(eq(facturaId));
+    }
+
 }
