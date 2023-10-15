@@ -6,6 +6,9 @@ import static org.mockito.Mockito.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.arquitecturajava.rest.entity.Factura;
+import com.arquitecturajava.rest.repository.FacturaRepository2;
+import com.arquitecturajava.rest.service.FacturaService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
