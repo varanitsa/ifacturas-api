@@ -28,9 +28,11 @@ public class FacturaController {
 
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public Optional<Factura> buscarFacturaById(@PathVariable Long id) {
         return facturaService.buscarFacturaById(id);
     }
+
 
 
     @GetMapping("numero/{numero}")
@@ -110,6 +112,7 @@ public class FacturaController {
     public Factura actualizarFacturaById(@PathVariable Long id, @RequestBody Factura nuevaFactura) {
         return facturaService.actualizarFacturaById(id, nuevaFactura);
     }
+
 
 
     @PutMapping("numero/{numero}")

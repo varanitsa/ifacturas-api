@@ -6,26 +6,36 @@ import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
+
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -33,11 +43,14 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
+@SpringBootTest
+@AutoConfigureMockMvc
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 
 @RunWith(MockitoJUnitRunner.class)
+
 public class FacturaControllerTests {
 
     @InjectMocks
@@ -53,16 +66,12 @@ public class FacturaControllerTests {
     }
 
 
-    @Test
-    public void testObtenerTodasLasFacturas() throws Exception {
-        // Lista ficticia de facturas
-        List<Factura> facturas = new ArrayList<>();
-        facturas.add(new Factura(1L, 1, "Factura 1", 100));
-        facturas.add(new Factura(2L, 2, "Factura 2", 200));
-        facturas.add(new Factura(3L, 3, "Factura 3", 300));
-        // Simulamos el comportamiento del servicio para buscar todas las facturas ficticias
 
-        when(facturaService.buscarTodas()).thenReturn(facturas);
+    @Test
+    @Sql(scripts = "/data-test.sql")
+    public void testObtenerTodasLasFacturas() throws Exception {
+
+        when(facturaService.buscarTodas()).thenCallRealMethod();
 
         // Realizamos la solicitud GET al endpoint /facturas
         mockMvc.perform(get("/facturas"))
@@ -88,9 +97,7 @@ public class FacturaControllerTests {
         // Lista ficticia de facturas
         List<Long> facturas = Arrays.asList(1L, 2L, 3L);
 
-
         when(facturaService.obtenerTodosLosIdsDeFacturas()).thenReturn(facturas);
-
 
         mockMvc.perform(get("/facturas/ids"))
                 .andExpect(status().isOk())
@@ -111,7 +118,7 @@ public class FacturaControllerTests {
         facturas.add(new Factura(1L, numeroFactura, "Factura 123", 100));
 
 
-        when(facturaService.buscarFacturaPorNumero(numeroFactura)).thenReturn(facturas);
+        Mockito.when(facturaService.buscarFacturaPorNumero(ArgumentMatchers.eq(numeroFactura))).thenReturn(facturas);
 
         // Llamamos al método del controlador que se está probando
         List<Factura> resultado = facturaController.buscarFacturaPorNumero(numeroFactura);
@@ -133,12 +140,11 @@ public class FacturaControllerTests {
         factura.setConcepto("Concepto de factura");
         factura.setImporte(100.0);
 
-        // Mockear el servicio para que devuelva una factura cuando se llama a agregarFactura
+        // Mockeamos el servicio para que devuelva una factura cuando se llama a agregarFactura
         Mockito.when(facturaService.agregarFactura(Mockito.any(Factura.class))).thenReturn(factura);
 
-        // Realizar la solicitud POST
-        mockMvc.perform(MockMvcRequestBuilders
-                        .post("/facturas")
+        // Realizaramos la solicitud POST
+        mockMvc.perform(post("/facturas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"numero\":1,\"concepto\":\"Concepto de factura\",\"importe\":100.0}")
                         .accept(MediaType.APPLICATION_JSON))
@@ -148,7 +154,33 @@ public class FacturaControllerTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.importe").value(100.0))
                 .andExpect(header().string(HttpHeaders.LOCATION, "http://localhost/facturas/1"));
     }
+/*
+@Test
+     public void testBuscarFacturaByIdExistente() throws Exception  {
+        Long id = 1L;
 
+        Factura factura = new Factura();
+        factura.setId(id);
+        factura.setNumero(1);
+        factura.setConcepto("Concepto de factura");
+        factura.setImporte(100.0);
+
+        Mockito.when(facturaService.buscarFacturaById(ArgumentMatchers.eq(id)))
+                .thenReturn(Optional.of(factura));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/facturas/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.numero").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.concepto").value("Concepto de factura"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.importe").value(100.0)));
+
+        Mockito.verify(facturaService).buscarFacturaById(ArgumentMatchers.eq(id));
+    }
+
+*/
 
     @Test
     public void testCrearFacturas() throws Exception {
@@ -173,8 +205,7 @@ public class FacturaControllerTests {
             // Convertimos la lista de objetos JSON a una cadena JSON
             String facturaJsonString = new ObjectMapper().writeValueAsString(facturaJsonList);
 
-            mockMvc.perform(MockMvcRequestBuilders
-                            .post("/facturas/bulk")
+            mockMvc.perform(post("/facturas/bulk")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(facturaJsonString)
                             .accept(MediaType.APPLICATION_JSON))
