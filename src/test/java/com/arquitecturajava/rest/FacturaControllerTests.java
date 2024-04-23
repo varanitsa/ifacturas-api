@@ -59,9 +59,9 @@ public class FacturaControllerTests {
     public void testObtenerTodasLasFacturas() throws Exception {
         // Lista ficticia de facturas
         List<Factura> facturas = new ArrayList<>();
-        facturas.add(new Factura(1L, 1, "Factura 1", 100));
-        facturas.add(new Factura(2L, 2, "Factura 2", 200));
-        facturas.add(new Factura(3L, 3, "Factura 3", 300));
+        facturas.add(new Factura(1, "Factura 1", 100));
+        facturas.add(new Factura(2, "Factura 2", 200));
+        facturas.add(new Factura(3, "Factura 3", 300));
         // Simulamos el comportamiento del servicio para buscar todas las facturas ficticias
 
         when(facturaService.buscarTodas()).thenReturn(facturas);
@@ -70,13 +70,10 @@ public class FacturaControllerTests {
         mockMvc.perform(get("/facturas"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].concepto").value("Factura 1"))
                 .andExpect(jsonPath("$[0].importe").value(100))
-                .andExpect(jsonPath("$[1].id").value(2L))
                 .andExpect(jsonPath("$[1].concepto").value("Factura 2"))
                 .andExpect(jsonPath("$[1].importe").value(200))
-                .andExpect(jsonPath("$[2].id").value(3L))
                 .andExpect(jsonPath("$[2].concepto").value("Factura 3"))
                 .andExpect(jsonPath("$[2].importe").value(300));
 
@@ -110,7 +107,7 @@ public class FacturaControllerTests {
         int numeroFactura = 123;
 
         List<Factura> facturas = new ArrayList<>();
-        facturas.add(new Factura(1L, numeroFactura, "Factura 123", 100));
+        facturas.add(new Factura(numeroFactura, "Factura 123", 100));
 
 
         when(facturaService.buscarFacturaPorNumero(numeroFactura)).thenReturn(facturas);
@@ -155,9 +152,9 @@ public class FacturaControllerTests {
     @Test
     public void testCrearFacturas() throws Exception {
         List<Factura> facturas = new ArrayList<>();
-        facturas.add(new Factura(1L, 1, "Factura 1", 100));
-        facturas.add(new Factura(2L, 2, "Factura 2", 200));
-        facturas.add(new Factura(3L, 3, "Factura 3", 300));
+        facturas.add(new Factura(1, "Factura 1", 100));
+        facturas.add(new Factura(2, "Factura 2", 200));
+        facturas.add(new Factura(3, "Factura 3", 300));
 
         Mockito.when(facturaService.agregarFacturas(Mockito.anyList())).thenReturn(facturas);
 
@@ -182,15 +179,12 @@ public class FacturaControllerTests {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(3)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].numero").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].concepto").value("Factura 1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].importe").value(100))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id").value(2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].numero").value(2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].concepto").value("Factura 2"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].importe").value(200))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].id").value(3))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].numero").value(3))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].concepto").value("Factura 3"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].importe").value(300));
@@ -213,7 +207,7 @@ public class FacturaControllerTests {
     public void testActualizarFacturaById() throws Exception {
 
         Long facturaId = 1L;
-        Factura nuevaFactura = new Factura(facturaId, 1, "Nueva Factura", 500.0);
+        Factura nuevaFactura = new Factura(1, "Nueva Factura", 500.0);
 
         mockMvc.perform(put("/facturas/" + facturaId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -228,7 +222,7 @@ public class FacturaControllerTests {
     public void testActualizarFacturaPorNumero() throws Exception {
         // Datos de ejemplo
         int numeroFactura = 1;
-        Factura nuevaFactura = new Factura(1L, numeroFactura, "Nueva Factura", 500.0);
+        Factura nuevaFactura = new Factura(numeroFactura, "Nueva Factura", 500.0);
 
         mockMvc.perform(put("/facturas/numero/" + numeroFactura)
                         .contentType(MediaType.APPLICATION_JSON)

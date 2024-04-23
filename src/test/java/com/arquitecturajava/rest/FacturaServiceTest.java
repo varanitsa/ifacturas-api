@@ -32,9 +32,9 @@ public class FacturaServiceTest {
     public void testBuscarTodas() {
         // Crea una lista ficticia de facturas
         List<Factura> facturas = new ArrayList<>();
-        facturas.add(new Factura(1L,1, "Factura 1", 100));
-        facturas.add(new Factura(2L,2, "Factura 2", 200));
-        facturas.add(new Factura(3L,3, "Factura 3", 300));
+        facturas.add(new Factura(1, "Factura 1", 100));
+        facturas.add(new Factura(2, "Factura 2", 200));
+        facturas.add(new Factura(3, "Factura 3", 300));
 
         // Cuando se llame a facturaRepository.findAll(), retorna la lista ficticia de facturas
         when(facturaRepository.findAll()).thenReturn(facturas);
