@@ -1,0 +1,134 @@
+openapi: 3.0.2
+info:
+  title: ifacturas API
+  version: 3.0.2
+paths:
+  /facturas:
+    get:
+      responses:
+        '200':
+          description: Respuesta exitosa
+    post:
+      requestBody:
+        description: Datos de la factura a crear
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                numero:
+                  type: integer
+                  example: 12345  # Ejemplo de un número de factura
+                concepto:
+                  type: string
+                  example: "Venta de productos"  # Ejemplo de un concepto de factura
+                importe:
+                  type: number
+                  format: double
+                  example: 100.50  # Ejemplo de un importe de factura
+      responses:
+        '201':
+          description: Factura creada con éxito
+
+  /facturas/{id}:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Respuesta exitosa
+    delete:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Respuesta exitosa
+        '400':
+          description: Invalid id supplied
+        '404':
+          description: id not found
+    put:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Datos actualizados de la factura
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                numero:
+                  type: integer
+                  example: 12345  # Ejemplo de un número de factura
+                concepto:
+                  type: string
+                  example: "Venta de productos"  # Ejemplo de un concepto de factura
+                importe:
+                  type: number
+                  format: double
+                  example: 100.50  # Ejemplo de un importe de factura
+      responses:
+        '200':
+          description: Factura actualizada con éxito
+
+  /facturas/numero/{numero}:
+    get:
+      parameters:
+        - name: numero
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Respuesta exitosa
+
+  /facturas/ids:
+    get:
+      responses:
+        '200':
+          description: Respuesta exitosa
+
+  /facturas/bulk:
+    post:
+      summary: Agregar múltiples facturas
+      description: Agrega múltiples facturas en el sistema.
+      requestBody:
+        description: Lista de facturas a agregar
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  numero:
+                    type: integer
+                    example: 12345  # Ejemplo de un número de factura
+                  concepto:
+                    type: string
+                    example: "Venta de productos"  # Ejemplo de un concepto de factura
+                  importe:
+                    type: number
+                    format: double
+                    example: 100.50  # Ejemplo de un importe de factura
+      responses:
+        '201':
+          description: Facturas agregadas exitosamente
+        '400':
+          description: Error al agregar facturas
