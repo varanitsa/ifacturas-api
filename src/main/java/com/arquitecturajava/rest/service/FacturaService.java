@@ -1,7 +1,7 @@
 package com.arquitecturajava.rest.service;
 
-import com.arquitecturajava.rest.exception.FacturasExistenException;
 import com.arquitecturajava.rest.entity.Factura;
+import com.arquitecturajava.rest.exception.FacturasExistenException;
 import com.arquitecturajava.rest.repository.FacturaRepository2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,14 +19,13 @@ public class FacturaService {
         this.facturaRepository = facturaRepository;
     }
 
-
     public List<Factura> buscarFacturaPorNumero(int numero) {
-        List<Factura> factura = facturaRepository.findByNumero(numero);
-        if (factura.isEmpty()) {
-            String mensaje = "No se encontró ninguna factura con el ID " + numero;
+        List<Factura> facturas = facturaRepository.findByNumero(numero);
+        if (facturas.isEmpty()) {
+            String mensaje = "No se encontró ninguna factura con el número " + numero;
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, mensaje);
         }
-        return factura;
+        return facturas;
     }
 
     public Optional<Factura> buscarFacturaById(Long id) {
@@ -36,23 +35,22 @@ public class FacturaService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, mensaje);
         }
         return factura;
-
     }
 
     public List<Long> obtenerTodosLosIdsDeFacturas() {
         return facturaRepository.findAllIds();
     }
+
     public List<Factura> buscarTodas() {
         return facturaRepository.findAll();
     }
-
 
     public Factura agregarFactura(Factura factura) {
         int numeroFactura = factura.getNumero();
         List<Factura> facturasExistente = facturaRepository.findByNumero(numeroFactura);
 
         if (!facturasExistente.isEmpty()) {
-            throw new RuntimeException("Ya existe una factura con el número " + numeroFactura);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe una factura con el número " + numeroFactura);
         }
 
         Factura nuevaFactura = facturaRepository.save(factura);
@@ -61,14 +59,6 @@ public class FacturaService {
 
         return nuevaFactura;
     }
-
-    // Método para guardar varias facturas
-
-    /*
-    public List<Factura> agregarFacturas(List<Factura> facturas) {
-        return facturaRepository.saveAll(facturas);
-    }
-    */
 
     public List<Factura> agregarFacturas(List<Factura> facturas) throws FacturasExistenException {
         List<Factura> nuevasFacturas = new ArrayList<>();
@@ -80,8 +70,7 @@ public class FacturaService {
 
             if (facturasExistentesPorNumero.isEmpty()) {
                 // La factura no existe, podemos agregarla
-                facturaRepository.save(factura);
-                nuevasFacturas.add(factura);
+                nuevasFacturas.add(facturaRepository.save(factura));
             } else {
                 // La factura ya existe, agregamos el número a la lista de facturas existentes
                 numerosFacturasExistentes.add(numeroFactura);
@@ -95,10 +84,9 @@ public class FacturaService {
         return nuevasFacturas;
     }
 
-
     public Factura actualizarFacturaById(Long id, Factura nuevaFactura) {
         Factura facturaExistente = facturaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No se encontró ninguna factura con el ID " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encontró ninguna factura con el ID " + id));
 
         // Actualizar los campos de la factura existente con los valores de la nueva factura
         facturaExistente.setNumero(nuevaFactura.getNumero());
@@ -109,13 +97,11 @@ public class FacturaService {
         return facturaRepository.save(facturaExistente);
     }
 
-
-
     public Map<String, Object> actualizarFacturaPorNumero(int numero, Factura nuevaFactura) {
         List<Factura> facturasExistente = facturaRepository.findByNumero(numero);
 
         if (facturasExistente.isEmpty()) {
-            throw new RuntimeException("No se encontró ninguna factura con el número " + numero);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encontró ninguna factura con el número " + numero);
         }
 
         Factura facturaExistente = facturasExistente.get(0); // Obtenemos la primera factura de la lista
@@ -138,15 +124,18 @@ public class FacturaService {
         return response;
     }
 
-
     public String eliminarFacturaById(Long id) {
         Factura factura = facturaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No se encontró ninguna factura con el ID " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encontró ninguna factura con el ID " + id));
 
         facturaRepository.delete(factura);
         return "La factura con el ID " + id + " ha sido eliminada exitosamente.";
     }
 
+
+    public void deleteAllfacturas() {
+        facturaRepository.deleteAll();
+    }
 }
 
 

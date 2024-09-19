@@ -173,8 +173,15 @@ public class FacturaController {
         return facturaService.eliminarFacturaById(id);
     }
 
-
+    @DeleteMapping
+    @Operation(summary = "Eliminar todas las facturas", description = "Elimina todas las facturas")
+    public ResponseEntity<HttpStatus> deleteAllFacturas() {
+        facturaService.deleteAllfacturas();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
+
+
 
 
 

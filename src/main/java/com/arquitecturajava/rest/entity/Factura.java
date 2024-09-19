@@ -55,7 +55,7 @@ public class Factura {
         this.importe = importe;
     }
 
-    // Constructor con todos los campos
+
     public Factura(int numero, String concepto, double importe) {
         this.numero = numero;
         this.concepto = concepto;
