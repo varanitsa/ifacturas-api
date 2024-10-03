@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/facturas")
+@RequestMapping("/ifacturas-api/facturas")
 @Tag(name = "")
 public class FacturaController {
     private final FacturaService facturaService;
